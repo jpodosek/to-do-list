@@ -36,15 +36,14 @@ public class ToDoItemRepository {
 
 	public List<ToDoItem> getAll() {
 		List<ToDoItem> toDoList = new ArrayList<ToDoItem>();
+		int currentMaxId = 0;
 		// store to-do-list in a reader
-		try (Reader in = new FileReader("to-do-list.csv"); CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT)) // pass
-																												// CSV
-																													// parser
-		{
+		try (Reader in = new FileReader("to-do-list.csv"); 
+		CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT)) {
 
 			// get all the items from the csv file and store into CSVRecord list
 			List<CSVRecord> list = parser.getRecords();
-
+			
 			// iterate through list, and for each record, store column value in variable
 			for (CSVRecord record : list) {
 				String idColumn = record.get(0);
@@ -58,19 +57,20 @@ public class ToDoItemRepository {
 				item.setComplete(Boolean.parseBoolean(isComplete));
 				System.out.println(item);
 				// Add item to toDoList
-				toDoList.add(item);
-				nextId += 1;
-			}
+				toDoList.add(item);	
+			
+				if (item.getId() > currentMaxId) {
+				currentMaxId = item.getId();
+				currentMaxId += 1;
+				}		
+			} 
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("File not found");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("IO Exception");
 		}
 		return toDoList;
-		// return Collections.emptyList();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class ToDoItemRepository {
     public void create(ToDoItem item) {
 	
 	//Create the csv file 
-    try (FileWriter writer = new
+      try (FileWriter writer = new
 	  FileWriter("to-do-list.csv", true); CSVPrinter printer =
 	  CSVFormat.DEFAULT.print(writer)) {
 	  
@@ -91,9 +91,8 @@ public class ToDoItemRepository {
 	  item.getText(), Boolean.toString(item.isComplete())};
 	  printer.printRecord(record);
 	  
-	  } catch (IOException e) { System.out.println("error thing on create"); }
+	  } catch (IOException e) { System.out.println("Error on create method."); }
 	  
-	  System.out.println("did the create work?");  
 	  }
 	 
 	/**
@@ -123,27 +122,28 @@ public class ToDoItemRepository {
 	 */
 	public void update(ToDoItem item) {
 		// grab the current ToDoList
+		
 		List<ToDoItem> list = getAll();
+		//match the Passed in item by ID with current List (from getAll() )
 		for (ToDoItem i : list) {
 			if (item.getId() == i.getId()) {
-				i.setText(item.getText());
-				i.setComplete(item.isComplete());
-		
+				i.setText(item.getText()); //update the text
+				i.setComplete(item.isComplete());	 //update the complete status
 			}
 		}
 		
-		// store to-do-list in a reader
+		// store the latest to-do-list in a reader
 		try (FileWriter writer = new FileWriter("to-do-list.csv");
-				CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);) {
+			CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);) {
 
 			for (ToDoItem i : list) {
 				// Create string to store values from the item
-				// if i.get() = item.getby
+				// get the values of each field of the item and store into record array
 				String[] record = { Integer.toString(i.getId()), i.getText(), Boolean.toString(i.isComplete()) };
 				printer.printRecord(record);
 			}
 		} catch (IOException e) {
-			System.out.println("Input output exception.");
+			System.out.println("Input/output exception.");
 
 		}
 	}
