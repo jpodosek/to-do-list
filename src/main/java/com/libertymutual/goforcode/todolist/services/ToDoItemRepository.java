@@ -26,6 +26,7 @@ import com.libertymutual.goforcode.todolist.models.ToDoItem;
 public class ToDoItemRepository {
 
 	private int nextId = 1;
+	
 
 	/**
 	 * 
@@ -52,6 +53,7 @@ public class ToDoItemRepository {
 
 				// add each of these variable values to to-do-list
 				ToDoItem item = new ToDoItem();
+				
 				item.setId(Integer.parseInt(idColumn));
 				item.setText(textColumn);
 				item.setComplete(Boolean.parseBoolean(isComplete));
@@ -59,10 +61,12 @@ public class ToDoItemRepository {
 				// Add item to toDoList
 				toDoList.add(item);	
 			
+				//this allows ids to continue incrementing after restarting app
 				if (item.getId() > currentMaxId) {
-				currentMaxId = item.getId();
-				currentMaxId += 1;
+					currentMaxId = item.getId();
 				}		
+				nextId = currentMaxId + 1;
+
 			} 
 
 		} catch (FileNotFoundException e) {
@@ -83,12 +87,15 @@ public class ToDoItemRepository {
       try (FileWriter writer = new
 	  FileWriter("to-do-list.csv", true); CSVPrinter printer =
 	  CSVFormat.DEFAULT.print(writer)) {
-	  
+	 
+    	  
+    	
 	  //Assign new id to ToDoItem 
       item.setId(nextId); 
       nextId += 1;
-	  item.setComplete(false); String[] record = {Integer.toString(item.getId()),
-	  item.getText(), Boolean.toString(item.isComplete())};
+       
+	  item.setComplete(false); 
+	  String[] record = {Integer.toString(item.getId()), item.getText(), Boolean.toString(item.isComplete())};
 	  printer.printRecord(record);
 	  
 	  } catch (IOException e) { System.out.println("Error on create method."); }
